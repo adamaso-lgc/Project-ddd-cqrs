@@ -1,4 +1,5 @@
 ﻿using Project.Core.Entities;
+using Project.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,9 @@ namespace Project.Domain.Users
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Role { get; set; }
+        public Roles Role { get; set; }
 
-        public User(string name, string email, string password, string role)
+        public User(string name, string email, string password, Roles role)
         {
             Name = name;
             Email = email;

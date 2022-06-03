@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Project.Domain.Enums;
 using Project.Domain.Users;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,11 @@ namespace Project.Infra.Database.Configurations
             .HasColumnType("varchar(100)")
             .HasMaxLength(100)
             .IsRequired();
+
+            builder.Property(c => c.Role)
+            .HasConversion(
+                v => v.ToString(),
+                v => (Roles)Enum.Parse(typeof(Roles), v));
 
         }
     }

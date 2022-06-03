@@ -13,6 +13,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Project.Application.Users.CreateUserUseCase;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNet.Identity;
 
 namespace Project.IoC
 {
@@ -28,6 +31,27 @@ namespace Project.IoC
             // Infra - data
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
+
+            // Authentication
+            var secret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+
+            services.AddAuthentication(opts =>
+            {
+                opts.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opts.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(opts =>
+            {
+                opts.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = issuer,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret))
+                };
+            });
         }
 
         public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)

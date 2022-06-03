@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNet.Identity;
 using Project.Application.Exceptions;
+using Project.Application.Utilities;
 using Project.Core.Commands;
 using Project.Core.Entities;
 using Project.Domain.Users;
@@ -12,11 +14,13 @@ namespace Project.Application.Users.CreateUserUseCase
     {
         private readonly IRepository<User> _repository; 
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher _passwordHasher;
 
-        public CreateUserHandler(IRepository<User> repository, IUserRepository userRepository)
+        public CreateUserHandler(IRepository<User> repository, IUserRepository userRepository, IPasswordHasher passwordHasher)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<UserViewModel> Handle(CreateUserCommand request, CancellationToken cancellationToken)
@@ -37,7 +41,7 @@ namespace Project.Application.Users.CreateUserUseCase
                 }
             }
 
-            var user = new User(request.Name, request.Email, request.Password, "Users");
+            var user = new User(request.Name, request.Email, _passwordHasher.HashPassword(request.Password), request.Roles);
 
             _repository.Create(user);
             await _repository.Save();
@@ -46,7 +50,8 @@ namespace Project.Application.Users.CreateUserUseCase
             {
                 Id = user.Id,
                 Email = user.Email,
-                Name = user.Name
+                Name = user.Name,
+                Token = JwtGenerator.GenerateAuthToken(user.Id.ToString()),
             };
         }
     }

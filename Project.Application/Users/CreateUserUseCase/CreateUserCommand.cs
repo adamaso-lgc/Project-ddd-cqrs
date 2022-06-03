@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using Project.Core.Commands;
+using Project.Domain.Enums;
 
 namespace Project.Application.Users.CreateUserUseCase
 {
@@ -9,12 +10,14 @@ namespace Project.Application.Users.CreateUserUseCase
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public Roles Roles { get; set; }
 
-        public CreateUserCommand(string name, string email, string password)
+        public CreateUserCommand(string name, string email, string password, Roles roles)
         {
             Name = name;
             Email = email;
             Password = password;
+            Roles = roles;
         }
 
         public ValidationResult Validate()
